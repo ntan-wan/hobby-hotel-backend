@@ -30,4 +30,12 @@ export class SearchAccommodationDto {
   @ValidateNested()
   @Type(() => PriceRangeDto)
   priceRange?: PriceRangeDto;
+
+  @IsOptional()
+  @IsNumber()
+  page?: number;
+
+  @IsOptional()
+  @IsNumber()
+  limit?: number;
 }

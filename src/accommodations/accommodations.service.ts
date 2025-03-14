@@ -15,7 +15,14 @@ export class AccommodationsService {
   }
 
   async search(query: SearchAccommodationDto) {
-    const { name, description, rating, priceRange } = query ?? {};
+    const {
+      name,
+      description,
+      rating,
+      priceRange,
+      page = 1,
+      limit = 50,
+    } = query ?? {};
 
     const qb = this.accommodationRepo.createQueryBuilder('a');
 
@@ -34,6 +41,24 @@ export class AccommodationsService {
       });
     }
 
-    return qb.getResult();
+    // Add pagination
+    const skip = (page - 1) * limit;
+    qb.offset(skip).limit(limit);
+
+    // Get total count and results
+    const [items, total] = await Promise.all([
+      qb.getResult(),
+      qb.clone().getCount(),
+    ]);
+
+    return {
+      data: items,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    };
   }
 }
